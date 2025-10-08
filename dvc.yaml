@@ -1,0 +1,35 @@
+stages:
+  data_ingestion:
+    cmd: python steps/ingest_data_step.py
+    deps:
+      - _src/data_ingestion.py
+      - steps/ingest_data_step.py
+      - data/zip_data/archive.zip
+    outs:
+      - data/extracted_data/Housing.csv
+      - data/raw_data/raw.csv
+  splitting_data:
+    cmd: python steps/data_splitting_step.py
+    deps:
+      - _src/data_splitting.py
+      - steps/data_splitting_step.py
+      - data/raw_data/raw.csv
+    outs:
+      - data/splitted_data/x_train.csv
+      - data/splitted_data/x_test.csv
+      - data/splitted_data/y_train.csv
+      - data/splitted_data/y_test.csv
+  feature_engineering:
+    cmd: python steps/feature_engineer_step.py
+    deps:
+      - _src/feature_engineering.py
+      - steps/feature_engineer_step.py
+      - data/splitted_data/x_train.csv
+      - data/splitted_data/x_test.csv
+      - data/splitted_data/y_train.csv
+      - data/splitted_data/y_test.csv
+    outs:
+      - data/arr_data/x_train.np
+      - data/arr_data/x_test.np
+      - data/arr_data/y_train.np
+      - data/arr_data/y_test.np
