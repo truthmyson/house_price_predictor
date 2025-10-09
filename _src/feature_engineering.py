@@ -7,11 +7,14 @@ from abc import ABC, abstractmethod
 from sklearn.preprocessing import OneHotEncoder, PowerTransformer, StandardScaler, RobustScaler
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+import joblib
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # this is the base class for feature engineering
 class FeatureEngineering(ABC):
     @abstractmethod
-    def apply_transformation(self, df: pd.DataFrame):
+    def apply_transformation(self, x_train: pd.DataFrame, x_test: pd.DataFrame):
         """
         we will take the data frame and perform feature engineering on the data and save as file
         args:
@@ -22,7 +25,7 @@ class FeatureEngineering(ABC):
         pass
 
 class x_FetureEngineering(FeatureEngineering):
-    def __init__(self, col_onehotencode: str=[], col_skewed: str=[], col_outliers: str=[],  method: str=['train','test']):
+    def __init__(self, col_onehotencode: str, col_skewed: str, col_outliers: str):
         """
         we will initialize all the necessary varibles needed for the transformation
         args:
@@ -36,9 +39,8 @@ class x_FetureEngineering(FeatureEngineering):
         self._col_onehotencode = col_onehotencode
         self._col_skewed = col_skewed
         self._col_outliers = col_outliers
-        self._method = method
 
-    def apply_transformation(self, df: pd.DataFrame):
+    def apply_transformation(self, x_train: pd.DataFrame, x_test: pd.DataFrame):
         """
         we will transfor the data 
         args:
@@ -61,25 +63,25 @@ class x_FetureEngineering(FeatureEngineering):
             remainder='passthrough'
         )
 
-        path = "data/arr_data"
+        path = "data/arr_data/"
 
-        if isinstance(df, pd.DataFrame) and self._method == 'train':
-            x_train = preprocessor.fit_transform(df)
+        if isinstance(x_train, pd.DataFrame):
+            xtrain = numpy.array(preprocessor.fit_transform(x_train))
             # we vrify if the path exist else we will create it
-            os.makedirs(os.path.dirname(os.path.join(path, 'x_train.np')), exist_ok=True)
-            numpy.save(path + 'x_train.np',x_train)
+            os.makedirs(os.path.dirname(os.path.join(path, 'x_train.npy')), exist_ok=True)
+            joblib.dump(xtrain, path + 'x_train.npy')
 
-        elif isinstance(df, pd.DataFrame) and self._method == 'test':
-            x_test = preprocessor.transform(df)
+        if isinstance(x_test, pd.DataFrame):
+            xtest = numpy.array(preprocessor.transform(x_test))
             # we vrify if the path exist else we will create it
-            os.makedirs(os.path.dirname(os.path.join(path, 'x_test.np')), exist_ok=True)
-            numpy.save(path + 'x_test.np',x_train)
+            os.makedirs(os.path.dirname(os.path.join(path, 'x_test.npy')), exist_ok=True)
+            joblib.dump(xtest, path + 'x_test.npy')
             
 
 
 
 class y_FetureEngineering(FeatureEngineering):
-    def __init__(self, method: str=['train','test']):
+    def __init__(self):
         """
         we will initialize the method for or transformation
         args:
@@ -87,9 +89,8 @@ class y_FetureEngineering(FeatureEngineering):
         returns:
             none
         """
-        self._method = method
 
-    def apply_transformation(self, df: pd.DataFrame):
+    def apply_transformation(self, y_train: pd.DataFrame, y_test: pd.DataFrame):
         """
         we will transfor the data 
         args:
@@ -110,24 +111,24 @@ class y_FetureEngineering(FeatureEngineering):
             ],
         )
 
-        path = "data/arr_data"
+        path = "data/arr_data/"
 
-        if isinstance(df, pd.DataFrame) and self._method == 'train':
-            y_train = pipline.fit_transform(df)
+        if isinstance(y_train, pd.DataFrame):
+            ytrain = pipline.fit_transform(y_train)
             # we vrify if the path exist else we will create it
-            os.makedirs(os.path.dirname(os.path.join(path, 'y_train.np')), exist_ok=True)
-            numpy.save(path + 'y_train.np',y_train)
+            os.makedirs(os.path.dirname(os.path.join(path, 'y_train.npy')), exist_ok=True)
+            joblib.dump(ytrain, path + 'y_train.npy')
 
-        elif isinstance(df, pd.DataFrame) and self._method == 'test':
-            y_test = pipline.transform(df)
+        if isinstance(y_test, pd.DataFrame):
+            ytest = pipline.transform(y_test)
             # we vrify if the path exist else we will create it
-            os.makedirs(os.path.dirname(os.path.join(path, 'y_test.np')), exist_ok=True)
-            numpy.save(path + 'y_test.np',y_test)
+            os.makedirs(os.path.dirname(os.path.join(path, 'y_test.npy')), exist_ok=True)
+            joblib.dump(ytest, path + 'y_test.npy')
         
 
 # this class helps us to select the preferred style of data engineering
 class selectFeatureEngineeringStrtegy():
-    def __init__(self, strategy: FeatureEngineering=FeatureEngineering):
+    def __init__(self):
         """
         we will initialize our strategy selector with the base feature engineering class
         args:
@@ -135,9 +136,9 @@ class selectFeatureEngineeringStrtegy():
         returns:
             None - we will jsut set the strategy to the base strategy
         """
-        self._strategy = strategy
+        # self._strategy = strategy
 
-    def set_strategy(self, strategy: FeatureEngineering):
+    def set_strategy(self, strategy):
         """
         we will set the strategy to our preferred strategy
         args:
@@ -147,7 +148,7 @@ class selectFeatureEngineeringStrtegy():
         """
         self._strategy = strategy
 
-    def execute_strategy(self,df: pd.DataFrame, col_onehotencode: str=[], col_skewed: str=[], col_outliers: str=[],  method: str=['train','test']):
+    def execute_strategy(self,df_train: pd.DataFrame, df_test: pd.DataFrame, col_onehotencode, col_skewed, col_outliers):
         """
         we will execute the srategy we have set
         args:
@@ -157,11 +158,13 @@ class selectFeatureEngineeringStrtegy():
             pd.Dataframe - returns a pandas dataframe
         """
         if self._strategy == x_FetureEngineering:
-            self._strategy = self._strategy(col_onehotencode=col_onehotencode,col_skewed=col_skewed,col_outliers=col_outliers,method=method)
-            self._strategy.apply_transformation(df)
+            self._strategy = x_FetureEngineering
+            self._strategy = self._strategy(col_onehotencode=col_onehotencode,col_skewed=col_skewed,col_outliers=col_outliers)
+            self._strategy.apply_transformation(x_train=df_train,x_test=df_test)
         elif self._strategy == y_FetureEngineering:
-            self._strategy = self._strategy(method=method)
-            self._strategy.apply_transformation(df)
+            self._strategy = y_FetureEngineering
+            self._strategy = self._strategy()
+            self._strategy.apply_transformation(y_train=df_train,y_test=df_test)
         else:
             raise ValueError('the strategy is invalid..')
     

@@ -1,0 +1,102 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python steps/ingest_data_step.py
+    deps:
+    - path: _src/data_ingestion.py
+      hash: md5
+      md5: bcce67c5ed1d4989520047032354a6c6
+      size: 3544
+    - path: data/zip_data/archive.zip
+      hash: md5
+      md5: e75de0a261ce89d0aa863db93a1d8a94
+      size: 4740
+    - path: steps/ingest_data_step.py
+      hash: md5
+      md5: e37670e4c505fdf0631c4909058fdc7b
+      size: 896
+    outs:
+    - path: data/extracted_data/Housing.csv
+      hash: md5
+      md5: 801f8030dad1df22a53edfdbfa4e80f0
+      size: 29981
+    - path: data/raw_data/raw.csv
+      hash: md5
+      md5: 801f8030dad1df22a53edfdbfa4e80f0
+      size: 29981
+  splitting_data:
+    cmd: python steps/data_splitting_step.py
+    deps:
+    - path: _src/data_splitting.py
+      hash: md5
+      md5: 95b7582404085ee8a87f58fa5c69076f
+      size: 4747
+    - path: data/raw_data/raw.csv
+      hash: md5
+      md5: 801f8030dad1df22a53edfdbfa4e80f0
+      size: 29981
+    - path: steps/data_splitting_step.py
+      hash: md5
+      md5: c552d92a50ca3faa858033f2f0cc3650
+      size: 1023
+    outs:
+    - path: data/splitted_data/x_test.csv
+      hash: md5
+      md5: 47691e34b6958ba8b725075114c4b152
+      size: 5199
+    - path: data/splitted_data/x_train.csv
+      hash: md5
+      md5: e4ca0273553ddf31c607d4ca06fe42f3
+      size: 20535
+    - path: data/splitted_data/y_test.csv
+      hash: md5
+      md5: 6e4408c0cfc240e66b7798eb60c0ba54
+      size: 991
+    - path: data/splitted_data/y_train.csv
+      hash: md5
+      md5: 56f178a38bb8ea0eaa285b6eb892fa47
+      size: 3936
+  feature_engineering:
+    cmd: python steps/feature_engineer_step.py
+    deps:
+    - path: _src/feature_engineering.py
+      hash: md5
+      md5: dad60613aa8b3386c447d98ad1c76b5b
+      size: 7132
+    - path: data/splitted_data/x_test.csv
+      hash: md5
+      md5: 47691e34b6958ba8b725075114c4b152
+      size: 5199
+    - path: data/splitted_data/x_train.csv
+      hash: md5
+      md5: e4ca0273553ddf31c607d4ca06fe42f3
+      size: 20535
+    - path: data/splitted_data/y_test.csv
+      hash: md5
+      md5: 6e4408c0cfc240e66b7798eb60c0ba54
+      size: 991
+    - path: data/splitted_data/y_train.csv
+      hash: md5
+      md5: 56f178a38bb8ea0eaa285b6eb892fa47
+      size: 3936
+    - path: steps/feature_engineer_step.py
+      hash: md5
+      md5: bf9410598a82a98182041a781a2b0d58
+      size: 2929
+    outs:
+    - path: data/arr_data/x_test.npy
+      hash: md5
+      md5: 4228be3e5aaac6ebccb07303fb014cae
+      size: 21153
+    - path: data/arr_data/x_train.npy
+      hash: md5
+      md5: e7b4808d815aa460ea1c22b98eb2ed82
+      size: 83953
+    - path: data/arr_data/y_test.npy
+      hash: md5
+      md5: 613e742550dd1c44622bb2252348661a
+      size: 1097
+    - path: data/arr_data/y_train.npy
+      hash: md5
+      md5: 1cebd647eaca6781ebf51cedcf49c0b9
+      size: 3729

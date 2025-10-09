@@ -9,7 +9,7 @@ from _src.feature_engineering import selectFeatureEngineeringStrtegy, x_FetureEn
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def _feature_engineer(x_train: pd.DataFrame, x_test: pd.DataFrame, y_train: pd.Series, y_test: pd.Series):
+def _feature_engineer(x_train: pd.DataFrame, x_test: pd.DataFrame, y_train: pd.DataFrame, y_test: pd.DataFrame):
     """
     we will perform feature engineering oh are test and train sets
     args:
@@ -24,23 +24,24 @@ def _feature_engineer(x_train: pd.DataFrame, x_test: pd.DataFrame, y_train: pd.S
     logging.info("feature engineering has started..")
 
     feature_engineer = selectFeatureEngineeringStrtegy()
-    if isinstance(x_train, pd.DataFrame):
+    if isinstance(x_train, pd.DataFrame) and isinstance(x_test, pd.DataFrame):
         feature_engineer.set_strategy(x_FetureEngineering)
-        feature_engineer.execute_strategy(df=x_train,col_onehotencode=['mainroad','guestroom','airconditioning','hotwaterheating','basement','prefarea','furnishingstatus'],col_skewed=['price','area','parking','stories','bathrooms'],col_outliers=['price','area','parking','stories','bathrooms','bedrooms'],method='train')
+        feature_engineer.execute_strategy(df_train=x_train,df_test=x_test,col_onehotencode=['mainroad','guestroom','airconditioning','hotwaterheating','basement','prefarea','furnishingstatus'],col_skewed=['area','parking','stories','bathrooms'],col_outliers=['area','parking','stories','bathrooms','bedrooms'])
 
-    if isinstance(x_test, pd.DataFrame):
-        feature_engineer.set_strategy(x_FetureEngineering)
-        feature_engineer.execute_strategy(x_train,col_onehotencode=['mainroad','guestroom','airconditioning','hotwaterheating','basement','prefarea','furnishingstatus'],col_skewed=['price','area','parking','stories','bathrooms'],col_outliers=['price','area','parking','stories','bathrooms','bedrooms'],method='test')
+    # if isinstance(x_test, pd.DataFrame):
+    #     feature_engineer.set_strategy(x_FetureEngineering)
+    #     feature_engineer.execute_strategy(x_train,col_onehotencode=['mainroad','guestroom','airconditioning','hotwaterheating','basement','prefarea','furnishingstatus'],col_skewed=['area','parking','stories','bathrooms'],col_outliers=['area','parking','stories','bathrooms','bedrooms'],method='test')
     
-    if isinstance(y_train, pd.Series):
+    if isinstance(y_train, pd.DataFrame) and isinstance(y_test, pd.DataFrame):
         y_train = pd.DataFrame(y_train)
-        feature_engineer.set_strategy(y_FetureEngineering)
-        feature_engineer.execute_strategy(df=y_train,method='train')
-
-    if isinstance(y_test, pd.Series):
         y_test = pd.DataFrame(y_test)
         feature_engineer.set_strategy(y_FetureEngineering)
-        feature_engineer.execute_strategy(df=y_test,method='test')
+        feature_engineer.execute_strategy(df_train=y_train,df_test=y_test,col_onehotencode='',col_skewed='',col_outliers='')
+
+    # if isinstance(y_test, pd.DataFrame):
+    #     y_test = pd.DataFrame(y_test)
+    #     feature_engineer.set_strategy(y_FetureEngineering)
+    #     feature_engineer.execute_strategy(df=y_test,method='test',col_onehotencode='',col_skewed='',col_outliers='')
 
 
     logging.info("feature engineering has ended..")
@@ -48,7 +49,7 @@ def _feature_engineer(x_train: pd.DataFrame, x_test: pd.DataFrame, y_train: pd.S
 
 x_train = pd.DataFrame(pd.read_csv('data/splitted_data/x_train.csv'))
 x_test = pd.DataFrame(pd.read_csv('data/splitted_data/x_test.csv'))
-y_train = pd.Series(pd.read_csv('data/splitted_data/y_train.csv'))
-y_test = pd.Series(pd.read_csv('data/splitted_data/y_test.csv'))
+y_train = pd.DataFrame(pd.read_csv('data/splitted_data/y_train.csv'))
+y_test = pd.DataFrame(pd.read_csv('data/splitted_data/y_test.csv'))
 
 _feature_engineer(x_train,x_test,y_train,y_test)
