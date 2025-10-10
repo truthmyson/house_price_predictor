@@ -33,3 +33,10 @@ stages:
       - data/arr_data/x_test.npy
       - data/arr_data/y_train.npy
       - data/arr_data/y_test.npy
+  build_the_model:
+    cmd: python steps/model_building_step.py
+    deps:
+      - _src/model_building.py
+      - steps/model_building_step.py
+      - data/arr_data/x_train.npy
+      - data/arr_data/y_train.npy

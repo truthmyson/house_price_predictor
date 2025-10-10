@@ -100,3 +100,22 @@ stages:
       hash: md5
       md5: 1cebd647eaca6781ebf51cedcf49c0b9
       size: 3729
+  build_the_model:
+    cmd: python steps/model_building_step.py
+    deps:
+    - path: _src/model_building.py
+      hash: md5
+      md5: 7a77dbef84768a17837e4a93b941a370
+      size: 4955
+    - path: data/arr_data/x_train.npy
+      hash: md5
+      md5: e7b4808d815aa460ea1c22b98eb2ed82
+      size: 83953
+    - path: data/arr_data/y_train.npy
+      hash: md5
+      md5: 1cebd647eaca6781ebf51cedcf49c0b9
+      size: 3729
+    - path: steps/model_building_step.py
+      hash: md5
+      md5: e390452e28b97b70fb82b016fe08bd19
+      size: 1141
