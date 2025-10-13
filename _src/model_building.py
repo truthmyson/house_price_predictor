@@ -21,7 +21,8 @@ mlflow.set_tracking_uri("https://dagshub.com/nageteychristopher/house_price_pred
 
 # this the base class for training our model
 class TrainModel(ABC):
-    def train(self, df_train: pd.DataFrame, df_prid: pd.DataFrame):
+    @abstractmethod
+    def train(self, df_train, df_prid):
         """
         we will call this function to train our model
         args:
@@ -34,7 +35,7 @@ class TrainModel(ABC):
 
 # we will train the a linear regression model
 class LinearRegressionModel(TrainModel):
-    def train(self, df_train: pd.DataFrame, df_prid: pd.DataFrame):
+    def train(self, df_train, df_prid):
         """
         we will train a linear regresion model
         args:

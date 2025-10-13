@@ -32,4 +32,4 @@ def _build_model(df_train, df_pred, model: str):
 df_train = joblib.load('data/arr_data/x_train.npy')
 df_pred = joblib.load('data/arr_data/y_train.npy')
 
-_build_model(df_train=df_train,df_pred=df_pred,model='linear')
+# _build_model(df_train=df_train,df_pred=df_pred,model='linear') # i will comment out to avoid retrain ing the model in an existing nun name which could cause errors
