@@ -76,7 +76,6 @@ def make_prediction(features):
 
     # create pipeline for incoming input
     _data = preprocessor.transform(features)
-    print(_data)
 
     # predict house price
     price = model.predict(_data)
@@ -91,4 +90,4 @@ def make_prediction(features):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=2662, host='0.0.0.0')
