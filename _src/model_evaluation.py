@@ -7,6 +7,7 @@ from mlflow import MlflowClient
 import pandas as pd
 from abc import ABC, abstractmethod
 import dagshub
+import joblib
 
 from sklearn.metrics import r2_score, mean_absolute_error, root_mean_squared_error, mean_squared_error
 
@@ -58,7 +59,7 @@ class EvaluateLinearModel(EvaluateModel):
         returns:
             none
         """
-        run_id = '3e9618725ec94ffd9851a84beb543d9a'
+        run_id = '017f3e2810c04f07aa798a13db761f19'
         model_name = 'linear-model'
 
         model_url = f"runs:/{run_id}/model"
@@ -66,7 +67,7 @@ class EvaluateLinearModel(EvaluateModel):
         # this will register the model for that particular run id
         # we will check if the model has already been registered
 
-        filter = "run_id = '3e9618725ec94ffd9851a84beb543d9a'"
+        filter = "run_id = '017f3e2810c04f07aa798a13db761f19'"
         model_versions = mlflow.search_model_versions(filter_string=filter)
 
         if len(model_versions) == 0:
@@ -75,26 +76,30 @@ class EvaluateLinearModel(EvaluateModel):
         else:
             model_version = 1
 
-        with mlflow.start_run(run_id='3e9618725ec94ffd9851a84beb543d9a'):
+        with mlflow.start_run(run_id='017f3e2810c04f07aa798a13db761f19'):
             # we will load the model
             load_model_url = f"models:/{model_name}/{model_version}"
             model = mlflow.sklearn.load_model(load_model_url)
+
+            # we will save the model for our app
+            if not os.path.exists('model_linear.pkl'):
+                joblib.dump(model, "model_linear.pkl")
 
             model_y_pred = model.predict(df_test)
 
             # we will calculate and log metrics to the mlflow
             if self._r2_value:
                 _r2_value = r2_score(model_y_pred,df_pred)
-                mlflow.log_metric("r2_score",_r2_value,run_id='3e9618725ec94ffd9851a84beb543d9a')
+                mlflow.log_metric("r2_score",_r2_value,run_id='017f3e2810c04f07aa798a13db761f19')
             if self._MAE:
                 _MAE = mean_absolute_error(model_y_pred,df_pred)
-                mlflow.log_metric("MAE",_MAE, run_id='3e9618725ec94ffd9851a84beb543d9a')
+                mlflow.log_metric("MAE",_MAE, run_id='017f3e2810c04f07aa798a13db761f19')
             if self._RMSE:
                 _RMSE = root_mean_squared_error(model_y_pred,df_pred)
-                mlflow.log_metric("RMSE",_RMSE, run_id='3e9618725ec94ffd9851a84beb543d9a')
+                mlflow.log_metric("RMSE",_RMSE, run_id='017f3e2810c04f07aa798a13db761f19')
             if self._MSE:
                 _MSE = mean_squared_error(model_y_pred,df_pred)
-                mlflow.log_metric("MSE", _MSE, run_id='3e9618725ec94ffd9851a84beb543d9a')
+                mlflow.log_metric("MSE", _MSE, run_id='017f3e2810c04f07aa798a13db761f19')
 
 
 # we will evaluate our stacking model
@@ -144,6 +149,10 @@ class EvaluateStackingModel(EvaluateModel):
             # we will load the model
             load_model_url = f"models:/{model_name}/{model_version}"
             model = mlflow.sklearn.load_model(load_model_url)
+
+            # we will save the model for our app
+            if not os.path.exists('model_stacking.pkl'):
+                joblib.dump(model, "model_stacking.pkl")
 
             model_y_pred = model.predict(df_test)
 

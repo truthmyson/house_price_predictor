@@ -15,6 +15,7 @@ class DataIngestor(ABC):
         returns:
             none
         """
+        
         pass
 
 

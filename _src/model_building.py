@@ -14,7 +14,7 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, S
 # initialize dagshub for the mlflow tracking
 dagshub.init(repo_owner='nageteychristopher', repo_name='house_price_predictor', mlflow=True)
 # create an mlfolw experiment
-mlflow.set_experiment("House Price Prediction")
+mlflow.set_experiment("House_Price_Prediction")
 # we will connect our experiments to dagshub for remote tracking
 mlflow.set_tracking_uri("https://dagshub.com/nageteychristopher/house_price_predictor.mlflow")
 
@@ -43,6 +43,7 @@ class LinearRegressionModel(TrainModel):
         returns:
             none
         """
+        
         # we will automatically log sklearn params, artifacts and metrics of our model
         mlflow.sklearn.autolog()
         # we will start a new run

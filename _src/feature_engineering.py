@@ -4,7 +4,7 @@ import numpy
 import pandas as pd
 from abc import ABC, abstractmethod
 
-from sklearn.preprocessing import OneHotEncoder, PowerTransformer, StandardScaler, RobustScaler
+from sklearn.preprocessing import OneHotEncoder, PowerTransformer, StandardScaler, RobustScaler, FunctionTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 import joblib
@@ -25,7 +25,7 @@ class FeatureEngineering(ABC):
         pass
 
 class x_FetureEngineering(FeatureEngineering):
-    def __init__(self, col_onehotencode: str, col_skewed: str, col_outliers: str):
+    def __init__(self, col_onehotencode: str, col_skewed: str, col_outliers: str, col_map_binary: str):
         """
         we will initialize all the necessary varibles needed for the transformation
         args:
@@ -39,6 +39,7 @@ class x_FetureEngineering(FeatureEngineering):
         self._col_onehotencode = col_onehotencode
         self._col_skewed = col_skewed
         self._col_outliers = col_outliers
+        self._col_map_binary = col_map_binary
 
     def apply_transformation(self, x_train: pd.DataFrame, x_test: pd.DataFrame):
         """
@@ -54,11 +55,23 @@ class x_FetureEngineering(FeatureEngineering):
         outlier_transform = RobustScaler()
         onehot_transform = OneHotEncoder()
 
+        # we will change yes to 1 and no to zero in columns with such values
+        def map(X):
+            # Ensure X is a 2D array for scikit-learn
+            X = X.reshape(-1, 1) if X.ndim == 1 else X
+            mapping = {'yes': 1, 'no': 0}
+            # Apply mapping and infer objects to avoid FutureWarning
+            mapped = pd.DataFrame(X).replace(mapping).infer_objects(copy=False).values
+            return mapped.astype(float)
+        
+        binary_map = FunctionTransformer(map)
+
         preprocessor = ColumnTransformer(
             transformers=[
                 ("remove skewness", Skew_tranform, self._col_skewed),
                 ("deal with outliers", outlier_transform, self._col_outliers),
-                ("one hot encode cat cols", onehot_transform, self._col_onehotencode)
+                ("one hot encode cat cols", onehot_transform, self._col_onehotencode),
+                ('map binary cols', binary_map, self._col_map_binary)
             ],
             remainder='passthrough'
         )
@@ -70,13 +83,16 @@ class x_FetureEngineering(FeatureEngineering):
             # we vrify if the path exist else we will create it
             os.makedirs(os.path.dirname(os.path.join(path, 'x_train.npy')), exist_ok=True)
             joblib.dump(xtrain, path + 'x_train.npy')
+            if not os.path.exists('preprocessor.pkl'):
+                joblib.dump(preprocessor, 'preprocessor.pkl')
+            print(xtrain[:2,:])
 
         if isinstance(x_test, pd.DataFrame):
             xtest = numpy.array(preprocessor.transform(x_test))
             # we vrify if the path exist else we will create it
             os.makedirs(os.path.dirname(os.path.join(path, 'x_test.npy')), exist_ok=True)
             joblib.dump(xtest, path + 'x_test.npy')
-            
+            print(xtest.shape)
 
 
 
@@ -118,6 +134,8 @@ class y_FetureEngineering(FeatureEngineering):
             # we vrify if the path exist else we will create it
             os.makedirs(os.path.dirname(os.path.join(path, 'y_train.npy')), exist_ok=True)
             joblib.dump(ytrain, path + 'y_train.npy')
+            if not os.path.exists('target_preprocessor.pkl'):
+                joblib.dump(pipline, 'target_preprocessor.pkl')
 
         if isinstance(y_test, pd.DataFrame):
             ytest = pipline.transform(y_test)
@@ -148,7 +166,7 @@ class selectFeatureEngineeringStrtegy():
         """
         self._strategy = strategy
 
-    def execute_strategy(self,df_train: pd.DataFrame, df_test: pd.DataFrame, col_onehotencode, col_skewed, col_outliers):
+    def execute_strategy(self,df_train: pd.DataFrame, df_test: pd.DataFrame, col_onehotencode, col_skewed, col_outliers, col_map_binary):
         """
         we will execute the srategy we have set
         args:
@@ -159,7 +177,7 @@ class selectFeatureEngineeringStrtegy():
         """
         if self._strategy == x_FetureEngineering:
             self._strategy = x_FetureEngineering
-            self._strategy = self._strategy(col_onehotencode=col_onehotencode,col_skewed=col_skewed,col_outliers=col_outliers)
+            self._strategy = self._strategy(col_onehotencode=col_onehotencode,col_skewed=col_skewed,col_outliers=col_outliers,col_map_binary=col_map_binary)
             self._strategy.apply_transformation(x_train=df_train,x_test=df_test)
         elif self._strategy == y_FetureEngineering:
             self._strategy = y_FetureEngineering

@@ -32,4 +32,4 @@ def _evaluate_model(df_test, df_pred, evaluator: str, r2_value: bool=False, MSE:
 df_test = joblib.load('data/arr_data/x_test.npy')
 df_pred = joblib.load('data/arr_data/y_test.npy')
 
-_evaluate_model(df_test=df_test,df_pred=df_pred,evaluator='stacking',r2_value=True,MSE=True,RMSE=True,MAE=True) # i will comment out to avoid re-evaluating the model in an existing run name which could cause errors
+_evaluate_model(df_test=df_test,df_pred=df_pred,evaluator='linear',r2_value=True,MSE=True,RMSE=True,MAE=True) # i will comment out to avoid re-evaluating the model in an existing run name which could cause errors

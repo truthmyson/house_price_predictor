@@ -26,7 +26,7 @@ def _feature_engineer(x_train: pd.DataFrame, x_test: pd.DataFrame, y_train: pd.D
     feature_engineer = selectFeatureEngineeringStrtegy()
     if isinstance(x_train, pd.DataFrame) and isinstance(x_test, pd.DataFrame):
         feature_engineer.set_strategy(x_FetureEngineering)
-        feature_engineer.execute_strategy(df_train=x_train,df_test=x_test,col_onehotencode=['mainroad','guestroom','airconditioning','hotwaterheating','basement','prefarea','furnishingstatus'],col_skewed=['area','parking','stories','bathrooms'],col_outliers=['area','parking','stories','bathrooms','bedrooms'])
+        feature_engineer.execute_strategy(df_train=x_train,df_test=x_test,col_onehotencode=['furnishingstatus'],col_skewed=['area','parking','stories','bathrooms'],col_outliers=['area','parking','stories','bathrooms','bedrooms'],col_map_binary=['mainroad','guestroom','airconditioning','hotwaterheating','basement','prefarea'])
 
     # if isinstance(x_test, pd.DataFrame):
     #     feature_engineer.set_strategy(x_FetureEngineering)
@@ -36,7 +36,7 @@ def _feature_engineer(x_train: pd.DataFrame, x_test: pd.DataFrame, y_train: pd.D
         y_train = pd.DataFrame(y_train)
         y_test = pd.DataFrame(y_test)
         feature_engineer.set_strategy(y_FetureEngineering)
-        feature_engineer.execute_strategy(df_train=y_train,df_test=y_test,col_onehotencode='',col_skewed='',col_outliers='')
+        feature_engineer.execute_strategy(df_train=y_train,df_test=y_test,col_onehotencode='',col_skewed='',col_outliers='',col_map_binary='')
 
     # if isinstance(y_test, pd.DataFrame):
     #     y_test = pd.DataFrame(y_test)
